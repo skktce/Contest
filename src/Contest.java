@@ -1,8 +1,5 @@
 import java.io.*;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.InputMismatchException;
-import java.util.Map;
 
 class Contest {
 
@@ -32,52 +29,76 @@ class Contest {
         out.close();
     }
 
-    private void solve(int caseNo, InputReader in, PrintWriter out) throws IOException
+    boolean[] t1;
+    boolean[] t2;
+
+    private void solve(int k, InputReader in, PrintWriter out) throws IOException
     {
-        // Get Inputs
-        int baskets = in.nextInt();
-        int fruitTypes = in.nextInt();
-        int basketFruitType[] = new int[baskets];
-        int basketCost[] = new int[baskets];
-        for (int i=0; i< baskets; i++) {
-            basketFruitType[i] = in.nextInt();
+        int tasks = in.nextInt();
+        t1 = new boolean[1441];
+        t2 = new boolean[1441];
+
+        int[][] taskTime = new int[tasks][2];
+        StringBuilder output = new StringBuilder();
+        boolean isInvalid = false;
+
+        for (int i=0; i< tasks; i++) {
+            taskTime[i][0] = in.nextInt();
+            taskTime[i][1] = in.nextInt();
         }
-        for (int i=0; i< baskets; i++) {
-            basketCost[i] = in.nextInt();
-        }
 
-        // Initialize
-        final int[] minimumCost = {Integer.MAX_VALUE};
-        Map<Integer, Integer> fruitTypeToCost = new HashMap<>();
-        // TODO: MIN_HEAP??
-
-        for (int i=0; i<baskets; i++) {
-            int newCost = Integer.MAX_VALUE;
-
-            int fruitType = basketFruitType[i];
-            int cost = basketCost[i];
-
-            if (fruitTypeToCost.containsKey(fruitType)) {
-                Integer oldCost = fruitTypeToCost.get(fruitType);
-                newCost = oldCost + cost;
-                fruitTypeToCost.put(fruitType, newCost);
-                // TODO: REMOVE OLD_COST FROM HEAP
-                // TODO: ADD NEW_COST IN HEAP
+        System.out.print("Case #" + k + ": ");
+        for (int i=0; i< tasks; i++) {
+            if(isT1AvailbleToSchedule(taskTime[i][0], taskTime[i][1])) {
+                scheduleTaskInT1(taskTime[i][0], taskTime[i][1]);
+                output.append("C");
+            } else if (isT2AvailbleToSchedule(taskTime[i][0], taskTime[i][1])) {
+                scheduleTaskInT2(taskTime[i][0], taskTime[i][1]);
+                output.append("J");
             } else {
-                newCost = cost;
-                fruitTypeToCost.put(fruitType, newCost);
-                // TODO: ADD NEW_COST IN HEAP
+                System.out.println("IMPOSSIBLE");
+                isInvalid = true;
+                break;
             }
         }
 
-        fruitTypeToCost.forEach((key, value) -> {
-            if (value < minimumCost[0]) {
-                minimumCost[0] = value;
-            }
-        });
-
-        out.println(minimumCost[0]);
+        if (!isInvalid) {
+            System.out.println(output.toString());
+        }
     }
+
+    private boolean isT1AvailbleToSchedule(int startTime, int endTime) {
+        for (int i=startTime; i<endTime; i++) {
+            if (t1[i] == true) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void scheduleTaskInT1(int startTime, int endTime) {
+        for (int i=startTime; i<endTime; i++) {
+            t1[i] = true;
+        }
+    }
+
+    private boolean isT2AvailbleToSchedule(int startTime, int endTime) {
+        for (int i=startTime; i<endTime; i++) {
+            if (t2[i] == true) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void scheduleTaskInT2(int startTime, int endTime) {
+        for (int i=startTime; i<endTime; i++) {
+            t2[i] = true;
+        }
+    }
+
 
     public static class InputReader {
 
